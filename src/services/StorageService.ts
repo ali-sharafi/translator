@@ -7,13 +7,13 @@ const StorageService = class {
         this.sheetID = process.env.SHEET_ID!;
     }
 
-    async store(word: string, meanings: Array<string>): Promise<void> {
+    async store(word: string, meanings: Array<string>, category: string): Promise<void> {
         const now = this.now();
         let parsedMeanings = this.parseMeanings(meanings, now);
         let definitionsID = this.generateDefinitionID(meanings.length);
         const currentUser = await this.getCurrentUser();
         if (currentUser) {
-            this.sendToServiceWorker(word, parsedMeanings, definitionsID, 'Lingemy', now, currentUser.setID, currentUser.accessToken);
+            this.sendToServiceWorker(word, parsedMeanings, definitionsID, category, now, currentUser.setID, currentUser.accessToken);
         } else this.sendUpdatedStatus('error', { error: "Pls login first" })
     }
 

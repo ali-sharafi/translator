@@ -4,22 +4,19 @@ import DictionaryService from "./services/DictionaryService";
 import App from './assets/js/App.vue';
 
 class Translator {
-    wordsList: Array<string>;
 
     constructor(private appComponent: Vue | null = null, private translation: TranslateResult | null = null) {
         this.registerListener();
-        this.wordsList = [];
     }
 
     registerListener(): void {
-        document.addEventListener('mouseup', () => this.handleSelectedText());
+        document.addEventListener('mouseup', (event: MouseEvent) => this.handleSelectedText(event));
     }
 
-    async handleSelectedText(): Promise<void> {
+    async handleSelectedText(event: MouseEvent): Promise<void> {
         let selected = document.getSelection()?.toString().trim();
-        if (selected && this.isSelectedValid(selected)) {
-            this.wordsList.push(selected);
-            this.translation = await this.translateWord(selected);
+        if (this.isSelectedValid(event, selected)) {
+            this.translation = await this.translateWord(selected!);
             this.createModal();
             if (this.translation)
                 this.mountDataToPage();
@@ -53,10 +50,8 @@ class Translator {
         document.body.append(divWraper);
     }
 
-    isSelectedValid(selected: string): boolean {
-        return !!(isNaN(Number(selected)) &&
-            this.wordsList.indexOf(selected) === -1 &&
-            selected.split(' ').length === 1)
+    isSelectedValid(event: MouseEvent, selected: string | undefined): boolean {
+        return !!(selected && event.ctrlKey && isNaN(Number(selected)));
     }
 }
 

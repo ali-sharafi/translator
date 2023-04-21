@@ -36,6 +36,9 @@
         </el-row>
       </el-tab-pane>
       <el-tab-pane label="Meanings">
+        <el-row class="translation-item">
+          <el-input v-model="category" placeholder="Category"></el-input>
+        </el-row>
         <el-row
           class="translation-item"
           v-for="(item, index) in meanings"
@@ -88,9 +91,11 @@ export default {
       items: [],
       additionalMeaning: "",
       additionalExample: "",
+      category: "Lingemy",
       localTranslation: this.translation,
       hidden: false,
       isLoading: false,
+      lastCategoryKey: "ul-category",
     };
   },
   computed: {
@@ -111,6 +116,10 @@ export default {
         this.updateStoredStatus(request.message, request.payload);
       }
     });
+    let lastCategory = localStorage.getItem(this.lastCategoryKey);
+    if (lastCategory) {
+      this.category = lastCategory;
+    }
   },
   methods: {
     updateStoredStatus(message, payload) {
@@ -124,10 +133,15 @@ export default {
       if (this.additionalMeaning) this.items.push(this.additionalMeaning);
       if (this.additionalExample) this.items.push(this.additionalExample);
       this.isLoading = true;
-      StorageService.store(this.localTranslation.word, this.items);
+      StorageService.store(
+        this.localTranslation.word,
+        this.items,
+        this.category
+      );
       this.items = [];
       this.additionalMeaning = "";
       this.additionalExample = "";
+      localStorage.setItem(this.lastCategoryKey, this.category);
     },
     close() {
       this.hidden = true;

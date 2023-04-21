@@ -2,17 +2,22 @@ import axios from "axios";
 import { TranslateResult, TranslatorInterface } from "../contract/TranslatorInterface";
 import { DictionaryResponse } from "../types/dictionary";
 class DictionaryService implements TranslatorInterface {
-    async readTranslate(word: string): Promise<TranslateResult | null> {
+    async readTranslate(word: string): Promise<TranslateResult> {
         let result = await this.getTranslation(word);
 
         if (result)
-            return this.parseResult(result);
-        return null;
+            return this.parseResult(word, result);
+        return {
+            word: word,
+            meanings: [],
+            learners: [],
+            examples: []
+        };
     }
 
-    parseResult(response: DictionaryResponse): TranslateResult {
+    parseResult(word: string, response: DictionaryResponse): TranslateResult {
         return {
-            word: response.data.displayForm,
+            word: word,
             meanings: this.getMeanings(response),
             learners: this.getLearnersExamples(response),
             examples: this.getExamples(response)
